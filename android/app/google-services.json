@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "605199851002",
+    "project_id": "beauty-contest-d74dd",
+    "storage_bucket": "beauty-contest-d74dd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:605199851002:android:21c2d6ef3b1422e048d843",
+        "android_client_info": {
+          "package_name": "com.prosperplay.beauty_contest_admin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAH_iwYTVgCsk_j_waGBf3-W-urF4yMJgE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
