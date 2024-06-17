@@ -1,18 +1,20 @@
+import 'package:beauty_contest_admin/src/features/experiments/presentation/new_experiment_dialog_controller.dart';
+import 'package:beauty_contest_admin/src/localization/string_hardcoded.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final _formKey = GlobalKey<FormState>();
 
-class NewExperimentDialog extends StatefulWidget {
+class NewExperimentDialog extends ConsumerStatefulWidget {
   const NewExperimentDialog({super.key});
 
   @override
-  State<NewExperimentDialog> createState() => _NewExperimentDialogState();
+  ConsumerState<NewExperimentDialog> createState() => _NewExperimentDialogState();
 }
 
-class _NewExperimentDialogState extends State<NewExperimentDialog> {
+class _NewExperimentDialogState extends ConsumerState<NewExperimentDialog> {
   final nameController = TextEditingController();
   final locationController = TextEditingController();
-  bool buttonsAreActive = true;
 
   @override
   void dispose() {
@@ -23,10 +25,12 @@ class _NewExperimentDialogState extends State<NewExperimentDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final asyncState = ref.watch(newExperimentDialogControllerProvider);
+
     return Center(
       child: SingleChildScrollView(
         child: AlertDialog(
-          title: const Text('Add New Experiment'),
+          title: Text('Add New Experiment'.hardcoded),
           content: Form(
             key: _formKey,
             child: SizedBox(
@@ -40,13 +44,13 @@ class _NewExperimentDialogState extends State<NewExperimentDialog> {
                     maxLength: 50,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter experiment name';
+                        return 'Please enter experiment name'.hardcoded;
                       }
                       return null;
                     },
-                    decoration: const InputDecoration(
-                      hintText: 'e.g. LSE Conference Fall 2024 - 1',
-                      labelText: 'Experiment Name',
+                    decoration: InputDecoration(
+                      hintText: 'e.g. LSE Conference Fall 2024 - 1'.hardcoded,
+                      labelText: 'Experiment Name'.hardcoded,
                       //icon: Icon(Icons.person),
                     ),
                   ),
@@ -55,13 +59,13 @@ class _NewExperimentDialogState extends State<NewExperimentDialog> {
                     maxLength: 30,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter a location';
+                        return 'Please enter a location'.hardcoded;
                       }
                       return null;
                     },
-                    decoration: const InputDecoration(
-                      hintText: 'e.g. USFCA',
-                      labelText: 'Experiment Location',
+                    decoration: InputDecoration(
+                      hintText: 'e.g. USFCA'.hardcoded,
+                      labelText: 'Experiment Location'.hardcoded,
                       //icon: Icon(Icons.person),
                     ),
                   ),
@@ -71,43 +75,34 @@ class _NewExperimentDialogState extends State<NewExperimentDialog> {
           ),
           actions: [
             ElevatedButton(
-              onPressed: !buttonsAreActive
+              onPressed: asyncState.isLoading
                   ? null
                   : () {
                       Navigator.of(context).pop();
                     },
-              child: const Text('CANCEL'),
+              child: Text('CANCEL'.hardcoded),
             ),
             ElevatedButton(
-              onPressed: !buttonsAreActive
+              onPressed: asyncState.isLoading
                   ? null
                   : () async {
                       if (_formKey.currentState!.validate()) {
                         print('VALID DATA!');
-                        setState(() => buttonsAreActive = false);
-                        final experimentName = nameController.text;
-                        final experimentLocation = locationController.text;
                         print('TRY TO CREATE EXPERIMENT...');
-                        try {
-                          await createExperiment();
-                        } catch (error, stack) {
-                          print(error);
-                          print(stack);
-                          setState(() => buttonsAreActive = true);
-                        }
+
+                        await ref
+                            .read(newExperimentDialogControllerProvider.notifier)
+                            .createExperiment(
+                              name: nameController.text,
+                              location: locationController.text,
+                            );
                       }
                     },
-              child: const Text('OK'),
+              child: Text('OK'.hardcoded),
             ),
           ],
         ),
       ),
     );
   }
-}
-
-Future<void> createExperiment() async {
-  // TODO: REPLACE WITH FIRESTORE
-  await Future.delayed(const Duration(milliseconds: 1000));
-  throw Exception('Something went wrong');
 }

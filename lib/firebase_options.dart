@@ -72,4 +72,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'beauty-contest-d74dd.appspot.com',
     iosBundleId: 'com.prosperplay.beautyContestAdmin',
   );
+
 }
