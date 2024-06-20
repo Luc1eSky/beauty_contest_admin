@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../../user/data/firestore_user_repository.dart';
+import '../../../admin/data/firestore_admin_repository.dart';
 import '../../data/auth_repository.dart';
 
 part 'login_screen_controller.g.dart';
@@ -21,7 +21,7 @@ class LoginScreenController extends _$LoginScreenController {
       await ref.read(authRepositoryProvider).signInAnonymously();
       final currentUser = ref.read(authRepositoryProvider).getCurrentUser();
       if (currentUser != null) {
-        ref.read(firestoreUserRepositoryProvider).createUserDoc(user: currentUser);
+        ref.read(firestoreAdminRepositoryProvider).createAdminDoc(admin: currentUser);
       }
       state = const AsyncValue.data(null);
     } catch (error, stack) {

@@ -1,8 +1,9 @@
-import 'package:beauty_contest_admin/src/navigation/navigation_service.dart';
+import 'package:beauty_contest_admin/src/features/authorize/data/auth_repository.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../authorize/data/auth_repository.dart';
+import '../../../navigation/navigation_service.dart';
+import '../../admin/data/firestore_admin_repository.dart';
 import '../data/firestore_experiment_repository.dart';
 import '../domain/experiment.dart';
 
@@ -31,10 +32,25 @@ class NewExperimentDialogController extends _$NewExperimentDialogController {
         status: ExperimentStatus.scheduled,
         createdOn: DateTime.now(),
       );
-      await ref.read(firestoreExperimentRepositoryProvider).createExperimentDoc(
-            experiment: newExperiment,
-            user: ref.watch(authRepositoryProvider).getCurrentUser(),
-          );
+
+      final admin = ref.read(authRepositoryProvider).getCurrentUser();
+
+      if (admin == null) {
+        throw Exception('Admin is not logged in');
+      }
+
+      // create experiment in Exp Collection and save experiment doc ID
+      final experimentDocId =
+          await ref.read(firestoreExperimentRepositoryProvider).createExperimentDoc(
+                experiment: newExperiment,
+              );
+
+      // write experiment docID into current admin doc under admins collection
+      await ref
+          .read(firestoreAdminRepositoryProvider)
+          .addExperiment(experimentDocId: experimentDocId, admin: admin);
+
+      // close the new experiment dialog
       final context = NavigationService.navigatorKey.currentContext;
       if (context != null && context.mounted) {
         Navigator.of(context).pop();

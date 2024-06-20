@@ -1,3 +1,4 @@
+import 'package:beauty_contest_admin/src/features/admin/data/firestore_admin_repository.dart';
 import 'package:beauty_contest_admin/src/features/authorize/data/auth_repository.dart';
 import 'package:beauty_contest_admin/src/features/experiments/data/firestore_experiment_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,12 +17,17 @@ class ExperimentsOverviewScreenController extends _$ExperimentsOverviewScreenCon
 
   Query<Experiment?>? getExperimentQuery() {
     try {
-      final currentUser = ref.read(authRepositoryProvider).getCurrentUser();
-      if (currentUser == null) {
+      final currentAdmin = ref.read(authRepositoryProvider).getCurrentUser();
+      if (currentAdmin == null) {
         return null;
       }
+
+      // get list of experiment doc ids for admin
+      final experimentDocIdList =
+          ref.read(firestoreAdminRepositoryProvider).getExperimentDocIdList(admin: currentAdmin);
+
       final experimentsQuery =
-          ref.read(firestoreExperimentRepositoryProvider).getExperimentQuery(currentUser);
+          ref.read(firestoreExperimentRepositoryProvider).getExperimentQuery(experimentDocIdList);
       return experimentsQuery;
     } catch (error, stack) {
       state = AsyncError(error, stack);

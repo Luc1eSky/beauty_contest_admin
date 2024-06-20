@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../user/domain/app_user.dart';
+import '../../admin/domain/app_admin.dart';
 
 part 'auth_repository.g.dart';
 
@@ -10,17 +10,17 @@ class AuthRepository {
   final FirebaseAuth _auth;
 
   /// get current user
-  AppUser? getCurrentUser() {
+  AppAdmin? getCurrentUser() {
     final user = _auth.currentUser;
-    return user == null ? null : AppUser(uid: user.uid, isAnonymous: user.isAnonymous);
+    return user == null ? null : AppAdmin(uid: user.uid, isAnonymous: user.isAnonymous);
   }
 
   /// Notifies about changes to the user's sign-in state
   /// (such as sign-in or sign-out).
-  Stream<AppUser?> authStateChanges() {
+  Stream<AppAdmin?> authStateChanges() {
     return _auth.authStateChanges().map((user) {
       // converts to AppUser class or null
-      return user == null ? null : AppUser(uid: user.uid, isAnonymous: user.isAnonymous);
+      return user == null ? null : AppAdmin(uid: user.uid, isAnonymous: user.isAnonymous);
     });
   }
 
@@ -37,6 +37,12 @@ class AuthRepository {
 
   Future<void> signOut() {
     return _auth.signOut();
+  }
+
+  Future<String> getIdToken() async {
+    final user = _auth.currentUser;
+    final String? token = await user?.getIdToken(true);
+    return token ?? '';
   }
 }
 

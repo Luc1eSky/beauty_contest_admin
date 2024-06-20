@@ -3,7 +3,7 @@ import 'package:beauty_contest_admin/src/firestore/firestore_instance_provider.d
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../user/domain/app_user.dart';
+import '../../admin/domain/app_admin.dart';
 import '../domain/experiment.dart';
 
 part 'firestore_experiment_repository.g.dart';
@@ -13,24 +13,22 @@ class FirestoreExperimentRepository {
   final FirebaseFirestore _firestore;
 
   /// create a new experiment document in firestore
-  Future<void> createExperimentDoc({required Experiment experiment, required AppUser? user}) async {
-    if (user == null) {
-      throw Exception('No user signed in.');
-    }
-    final userCollectionRef = _firestore.collection(userCollectionName);
-    final userDocRef = userCollectionRef.doc(user.uid);
-    final experimentCollectionRef = userDocRef.collection(experimentsCollectionName);
-    await experimentCollectionRef.add(experiment.toJson());
+  Future<String> createExperimentDoc({required Experiment experiment}) async {
+    final experimentCollectionRef = _firestore.collection(experimentsCollectionName);
+    final docRef = await experimentCollectionRef.add(experiment.toJson());
+    return docRef.id;
   }
 
   void deleteExperimentDoc() {
     print('deleting doc');
   }
 
-  Query<Experiment?> getExperimentQuery(AppUser user) {
-    final userCollectionRef = _firestore.collection(userCollectionName);
-    final userDocRef = userCollectionRef.doc(user.uid);
-    final experimentCollectionRef = userDocRef.collection(experimentsCollectionName);
+  Query<Experiment?> getExperimentQuery(List<String> experimentIds) {
+    print('HERE');
+
+    //create query for specific experiment doc ids
+
+    final experimentCollectionRef = adminDocRef.collection(experimentsCollectionName);
     return experimentCollectionRef
         .orderBy('createdOn', descending: true)
         .withConverter<Experiment?>(
@@ -47,6 +45,8 @@ class FirestoreExperimentRepository {
           toFirestore: (experiment, _) => experiment!.toJson(),
         );
   }
+
+  void startExperiment({required Experiment experiment}) {}
 }
 
 @riverpod
