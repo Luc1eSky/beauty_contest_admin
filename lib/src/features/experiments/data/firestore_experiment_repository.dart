@@ -3,7 +3,6 @@ import 'package:beauty_contest_admin/src/firestore/firestore_instance_provider.d
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../admin/domain/app_admin.dart';
 import '../domain/experiment.dart';
 
 part 'firestore_experiment_repository.g.dart';
@@ -23,13 +22,11 @@ class FirestoreExperimentRepository {
     print('deleting doc');
   }
 
+  /// create query for specific experiment doc ids
   Query<Experiment?> getExperimentQuery(List<String> experimentIds) {
-    print('HERE');
-
-    //create query for specific experiment doc ids
-
-    final experimentCollectionRef = adminDocRef.collection(experimentsCollectionName);
+    final experimentCollectionRef = _firestore.collection(experimentsCollectionName);
     return experimentCollectionRef
+        .where(FieldPath.documentId, whereIn: experimentIds)
         .orderBy('createdOn', descending: true)
         .withConverter<Experiment?>(
           fromFirestore: (snapshot, _) {
@@ -38,6 +35,7 @@ class FirestoreExperimentRepository {
               return Experiment.fromJson(snapshot.data()!);
             } catch (error) {
               // TODO: ADD LOGGING
+              print('ERROR!');
               return null;
             }
           },

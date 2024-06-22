@@ -3,7 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../constants/firestore_constants.dart';
 import '../../../firestore/firestore_instance_provider.dart';
-import '../domain/app_admin.dart';
+import '../../authorize/domain/app_admin.dart';
 
 part 'firestore_admin_repository.g.dart';
 
@@ -11,57 +11,74 @@ class FirestoreAdminRepository {
   FirestoreAdminRepository(this._firestore);
   final FirebaseFirestore _firestore;
 
+  //DocumentReference<FirestoreAdminData?>
+  DocumentReference getAdminDocRef(AppAdmin admin) =>
+      _firestore.collection(adminCollectionName).doc(admin.uid);
+
+  // .withConverter(
+  //   fromFirestore: (doc, _) =>
+  //       doc.data() == null ? null : FirestoreAdminData.fromJson(doc.data()!),
+  //   toFirestore: (FirestoreAdminData? adminData, options) =>
+  //       adminData == null ? {} : adminData.toJson(),
+  // );
+
   // create new admin doc in firestore
   Future<void> createAdminDoc({required AppAdmin admin}) async {
-    // admin collection ref
-    final adminCollectionRef = _firestore.collection(adminCollectionName);
+    // admin document ref
+    final adminDocRef = getAdminDocRef(admin);
 
     // check if document exists
-    final adminDocSnap = await adminCollectionRef.doc(admin.uid).get();
+    final adminDocSnap = await adminDocRef.get();
 
     // create admin doc if it doesnt exist already
     if (adminDocSnap.exists) {
       // TODO: LOGGING?
       print('ADMIN DOC ALREADY EXISTS!');
     } else {
-      await adminCollectionRef.doc(admin.uid).set({'isAnonymous': admin.isAnonymous});
+      //final adminData = FirestoreAdminData(isAnonymous: admin.isAnonymous, experimentDocIds: []);
+      await adminDocRef.set({'isAnonymous': admin.isAnonymous});
     }
   }
 
   Future<void> addExperiment({required String experimentDocId, required AppAdmin admin}) async {
-    final adminCollectionRef = _firestore.collection(adminCollectionName);
-    await adminCollectionRef.doc(admin.uid).update({
+    // admin document ref
+    final adminDocRef = getAdminDocRef(admin);
+
+    await adminDocRef.update({
       experimentListName: FieldValue.arrayUnion([experimentDocId])
     });
   }
 
-  Future<List<String>> getExperimentDocIdList({required AppAdmin admin}) async {
-    final adminCollectionRef = _firestore.collection(adminCollectionName);
-    final adminDocRef = adminCollectionRef.doc(admin.uid);
-    final adminDocSnap = await adminDocRef.get();
-
-    // TODO: ERROR HANDLING
-    if (!adminDocSnap.exists) {
-      throw Exception('ERROR - adminDocSnap does not exist!');
+  Stream<List<String>?> watchExperimentDocIdList(AppAdmin? admin) {
+    if (admin == null) {
+      return Stream.value(null);
     }
 
-    final adminData = adminDocSnap.data();
+    final adminDocRef = getAdminDocRef(admin);
+    final docSnapStream = adminDocRef.snapshots();
+    //final stringListStream = docSnapStream.map((docSnap) => docSnap.data()?.experimentDocIds);
 
-    if (adminData == null || adminData.isEmpty) {
-      throw Exception('ERROR!');
-    }
+    final mapStream = docSnapStream.map((snapshot) => snapshot.data() as Map<String, dynamic>?);
 
-    // get list of experiment doc IDs of current admin as list of strings
-    final listOfExperimentDocIds =
-        (adminData[experimentListName] as List<dynamic>).map((e) => e.toString()).toList();
+    final dynamicListStream =
+        mapStream.map((mapEntry) => mapEntry?[experimentListName] as List<dynamic>?);
 
-    return listOfExperimentDocIds;
+    final stringListStream = dynamicListStream.map((dynamicList) =>
+        dynamicList?.map((dynamicListEntry) => dynamicListEntry.toString()).toList());
+
+    return stringListStream;
   }
 
   // deleteUser
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 FirestoreAdminRepository firestoreAdminRepository(FirestoreAdminRepositoryRef ref) {
   return FirestoreAdminRepository(ref.watch(firestoreInstanceProvider));
+}
+
+@riverpod
+Stream<List<String>?> experimentDocIdsStream(ExperimentDocIdsStreamRef ref, AppAdmin? admin) {
+  final firestoreAdminRepository = ref.watch(firestoreAdminRepositoryProvider);
+  return firestoreAdminRepository.watchExperimentDocIdList(admin);
 }

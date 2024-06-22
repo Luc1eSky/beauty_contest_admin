@@ -3,7 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'firestore_instance_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 FirebaseFirestore firestoreInstance(FirestoreInstanceRef ref) {
   return FirebaseFirestore.instance;
 }

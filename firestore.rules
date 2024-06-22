@@ -10,14 +10,16 @@ service cloud.firestore {
     // only allow signed in user to create user document
     match /admins/{adminId} {
       allow read, write: if adminId == request.auth.uid;
-    
-
-      
     }
 
     // allow admin to create a new experiment
     match /experiments/{experimentDocId} {
         allow create: if request.auth.uid != null;
+      }
+
+    // allow admin to read their own experiment
+    match /experiments/{experimentDocId} {
+        allow read, write: if experimentDocId in get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.experimentDocIds;
       }
 
     

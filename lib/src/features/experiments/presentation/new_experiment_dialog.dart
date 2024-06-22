@@ -87,9 +87,6 @@ class _NewExperimentDialogState extends ConsumerState<NewExperimentDialog> {
                   ? null
                   : () async {
                       if (_formKey.currentState!.validate()) {
-                        print('VALID DATA!');
-                        print('TRY TO CREATE EXPERIMENT...');
-
                         await ref
                             .read(newExperimentDialogControllerProvider.notifier)
                             .createExperiment(

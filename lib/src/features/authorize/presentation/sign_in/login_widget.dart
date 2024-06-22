@@ -26,8 +26,8 @@ class LoginWidget extends ConsumerWidget {
             ),
             onPressed: loginGuestState.isLoading
                 ? null
-                : () async {
-                    await ref.read(loginScreenControllerProvider.notifier).signInGuest();
+                : () {
+                    ref.read(loginScreenControllerProvider.notifier).signInGuest();
                   },
             child: const Padding(
               padding: EdgeInsets.all(8.0),
