@@ -1,11 +1,11 @@
-import 'package:beauty_contest_admin/src/features/authorize/data/auth_repository.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../../navigation/navigation_service.dart';
-import '../../admin/data/firestore_admin_repository.dart';
-import '../data/firestore_experiment_repository.dart';
-import '../domain/experiment.dart';
+import '../../../../navigation/navigation_service.dart';
+import '../../../admin/data/firestore_admin_repository.dart';
+import '../../../authorize/data/auth_repository.dart';
+import '../../data/firestore_experiment_repository.dart';
+import '../../domain/experiment.dart';
 
 part 'new_experiment_dialog_controller.g.dart';
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../style/color_palette.dart';
-import '../domain/experiment.dart';
+import '../../../../style/color_palette.dart';
+import '../../domain/experiment.dart';
 
 class ExperimentInProgressScreen extends StatelessWidget {
   const ExperimentInProgressScreen({super.key, required this.experiment});

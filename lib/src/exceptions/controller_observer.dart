@@ -21,6 +21,9 @@ class ControllerObserver extends ProviderObserver {
       return;
     }
 
+    print('ERROR: ');
+    print(error);
+
     // // get error logger from provider
     // final errorHandler = container.read(errorHandlerProvider);
     // // log error or exception

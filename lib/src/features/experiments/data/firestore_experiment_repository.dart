@@ -29,18 +29,9 @@ class FirestoreExperimentRepository {
         .where(FieldPath.documentId, whereIn: experimentIds)
         .orderBy('createdOn', descending: true)
         .withConverter<Experiment?>(
-          fromFirestore: (snapshot, _) {
-            // if any conversion error occurs, return null
-            try {
-              return Experiment.fromJson(snapshot.data()!);
-            } catch (error) {
-              // TODO: ADD LOGGING
-              print('ERROR!');
-              return null;
-            }
-          },
-          // converter only used to get query, not to write
-          toFirestore: (experiment, _) => experiment!.toJson(),
+          fromFirestore: (snapshot, _) =>
+              snapshot.data() == null ? null : Experiment.fromJson(snapshot.data()!),
+          toFirestore: (experiment, _) => experiment == null ? {} : experiment.toJson(),
         );
   }
 
