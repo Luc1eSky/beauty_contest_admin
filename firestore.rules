@@ -7,23 +7,35 @@ service cloud.firestore {
 
     // TODO: assign users from admin app an admin role
 
-    // only allow signed in user to create user document
-    match /admins/{adminId} {
-      allow read, write: if adminId == request.auth.uid;
+    // true if the admin is not anonymous
+    function registeredAdmin() {
+      return get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.isAnonymous == false;
     }
 
-    // allow admin to create a new experiment
+    // true if the admin is signed in anonymously and has free experiments left
+    function guestWithFreeExperiments() {
+      return get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.isAnonymous == true && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.experimentCount < get(/databases/$(database)/documents/settings/generalSettings).data.freeExperimentCount;
+    }
+
+    // only everyone to read the general settings, don't allow any writes
+    match /settings/generalSettings {
+      allow read: if request.auth != null;
+    }
+
+    // only allow admin to access their own admin document
+    match /admins/{adminId} {
+      allow read, write: if request.auth != null && adminId == request.auth.uid;
+    }
+
     match /experiments/{experimentDocId} {
-        allow create: if request.auth.uid != null;
+        // allow admin to create a new experiment either if they are registered (unlimited) or if they have a free experiment left
+        allow create: if registeredAdmin() || guestWithFreeExperiments();
+        // allow admin to read, update or delete only the experiment they created
+        allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.adminUid;
       }
 
-    // allow admin to read their own experiment
-    match /experiments/{experimentDocId} {
-        allow read, write: if experimentDocId in get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.experimentDocIds;
-      }
 
     
-    // only allow users to edit their own experiments
 
 
     // match /{document=**} {

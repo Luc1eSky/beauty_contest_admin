@@ -34,33 +34,23 @@ class FirestoreAdminRepository {
       // TODO: LOGGING?
       print('ADMIN DOC ALREADY EXISTS!');
     } else {
-      final adminData = FirestoreAdminData(isAnonymous: admin.isAnonymous, experimentDocIds: []);
+      final adminData = FirestoreAdminData(isAnonymous: admin.isAnonymous, experimentCount: 0);
       await adminDocRef.set(adminData);
     }
   }
 
-  Future<void> addExperiment({required String experimentDocId, required AppAdmin admin}) async {
-    // admin document ref
+  Future<void> increaseExperimentCount({required AppAdmin admin}) async {
     final adminDocRef = getAdminDocRef(admin);
-
-    await adminDocRef.update({
-      experimentListName: FieldValue.arrayUnion([experimentDocId])
-    });
+    await adminDocRef.update({'experimentCount': FieldValue.increment(1)});
   }
 
-  /// stream the list of experiment document IDs for a specific admin
-  Stream<List<String>?> watchExperimentDocIdList(AppAdmin? admin) {
-    // return null if the current user (from auth) is null
+  Stream<FirestoreAdminData?> getFirestoreAdminStream(AppAdmin? admin) {
     if (admin == null) {
       return Stream.value(null);
     }
-
-    // get the admin document reference and stream
     final adminDocRef = getAdminDocRef(admin);
     final docSnapStream = adminDocRef.snapshots();
-    // convert stream to a stream of a list of strings and return
-    final stringListStream = docSnapStream.map((docSnap) => docSnap.data()?.experimentDocIds);
-    return stringListStream;
+    return docSnapStream.map((snapshot) => snapshot.data());
   }
 }
 
@@ -70,7 +60,7 @@ FirestoreAdminRepository firestoreAdminRepository(FirestoreAdminRepositoryRef re
 }
 
 @riverpod
-Stream<List<String>?> experimentDocIdsStream(ExperimentDocIdsStreamRef ref, AppAdmin? admin) {
+Stream<FirestoreAdminData?> firestoreAdminStream(FirestoreAdminStreamRef ref, AppAdmin? admin) {
   final firestoreAdminRepository = ref.watch(firestoreAdminRepositoryProvider);
-  return firestoreAdminRepository.watchExperimentDocIdList(admin);
+  return firestoreAdminRepository.getFirestoreAdminStream(admin);
 }

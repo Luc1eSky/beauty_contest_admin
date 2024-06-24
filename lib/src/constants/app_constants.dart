@@ -9,3 +9,8 @@ const double stackedWidgetHeight = titleHeight + signInWidgetHeight + designWidg
 // the widescreen design is
 const double maxWidthRightSide = 500;
 const double maxWidthSignInWidget = 400;
+
+/// max parameters throughout app
+// defines layout of dialogs
+const double dialogMaxWidth = 500;
+const double cardsMaxWidth = 700;

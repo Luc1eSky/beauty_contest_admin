@@ -8,7 +8,7 @@ part 'firestore_admin_data.g.dart';
 class FirestoreAdminData with _$FirestoreAdminData {
   const factory FirestoreAdminData({
     required bool isAnonymous,
-    required List<String> experimentDocIds,
+    required int experimentCount,
   }) = _FirestoreAdminData;
 
   factory FirestoreAdminData.fromJson(Map<String, Object?> json) =>

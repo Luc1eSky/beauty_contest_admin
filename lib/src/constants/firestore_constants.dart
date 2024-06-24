@@ -1,3 +1,4 @@
 const String adminCollectionName = 'admins';
 const String experimentsCollectionName = 'experiments';
-const String experimentListName = 'experimentDocIds';
+const String settingsCollectionName = 'settings';
+const String settingsDocName = 'generalSettings';

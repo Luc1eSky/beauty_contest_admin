@@ -1,7 +1,8 @@
-import 'package:beauty_contest_admin/src/localization/string_hardcoded.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../constants/app_constants.dart';
+import '../../../../localization/string_hardcoded.dart';
 import 'new_experiment_dialog_controller.dart';
 
 final _formKey = GlobalKey<FormState>();
@@ -35,7 +36,7 @@ class _NewExperimentDialogState extends ConsumerState<NewExperimentDialog> {
           content: Form(
             key: _formKey,
             child: SizedBox(
-              width: 500, // max width
+              width: dialogMaxWidth, // max width
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,

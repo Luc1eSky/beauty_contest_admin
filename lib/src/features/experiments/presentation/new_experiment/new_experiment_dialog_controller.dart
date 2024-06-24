@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../navigation/navigation_service.dart';
@@ -25,30 +25,27 @@ class NewExperimentDialogController extends _$NewExperimentDialogController {
 
     // try to create experiment in database
     try {
+      final admin = ref.read(authRepositoryProvider).getCurrentUser();
+
+      if (admin == null) {
+        throw Exception('Admin is not logged in');
+      }
       // create experiment object
       final newExperiment = Experiment(
         name: name,
         location: location,
         status: ExperimentStatus.scheduled,
         createdOn: DateTime.now(),
+        adminUid: admin.uid,
       );
 
-      final admin = ref.read(authRepositoryProvider).getCurrentUser();
-
-      if (admin == null) {
-        throw Exception('Admin is not logged in');
-      }
-
-      // create experiment in Exp Collection and save experiment doc ID
-      final experimentDocId =
-          await ref.read(firestoreExperimentRepositoryProvider).createExperimentDoc(
-                experiment: newExperiment,
-              );
-
-      // write experiment docID into current admin doc under admins collection
+      // create experiment in experiment collection
       await ref
-          .read(firestoreAdminRepositoryProvider)
-          .addExperiment(experimentDocId: experimentDocId, admin: admin);
+          .read(firestoreExperimentRepositoryProvider)
+          .createExperimentDoc(experiment: newExperiment);
+
+      // increase experiment count in admin doc
+      await ref.read(firestoreAdminRepositoryProvider).increaseExperimentCount(admin: admin);
 
       // close the new experiment dialog
       final context = NavigationService.navigatorKey.currentContext;
