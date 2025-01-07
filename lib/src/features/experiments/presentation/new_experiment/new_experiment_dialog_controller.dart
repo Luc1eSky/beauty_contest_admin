@@ -32,11 +32,11 @@ class NewExperimentDialogController extends _$NewExperimentDialogController {
       }
       // create experiment object
       final newExperiment = Experiment(
+        adminUid: admin.uid,
         name: name,
         location: location,
         status: ExperimentStatus.scheduled,
         createdOn: DateTime.now(),
-        adminUid: admin.uid,
       );
 
       // create experiment in experiment collection

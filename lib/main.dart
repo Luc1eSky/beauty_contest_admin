@@ -4,6 +4,7 @@ import 'package:beauty_contest_admin/src/exceptions/controller_observer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -25,7 +26,7 @@ void main() async {
   );
 
   // setup emulators after firebase was initialized but before the app runs
-  if (useEmulators) {
+  if (useEmulators && kDebugMode) {
     await setupEmulators();
   }
 

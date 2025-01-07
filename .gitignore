@@ -1,6 +1,6 @@
-# created by freezed
-*.g.dart
+# generated files
 *.freezed.dart
+*.g.dart
 
 # Miscellaneous
 *.class

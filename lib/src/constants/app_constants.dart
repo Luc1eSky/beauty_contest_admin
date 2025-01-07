@@ -14,3 +14,6 @@ const double maxWidthSignInWidget = 400;
 // defines layout of dialogs
 const double dialogMaxWidth = 500;
 const double cardsMaxWidth = 700;
+
+const String experimentsCollectionName = 'experiments';
+const String usersCollectionName = 'users';

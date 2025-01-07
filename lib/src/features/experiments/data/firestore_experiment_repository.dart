@@ -1,4 +1,3 @@
-import 'package:beauty_contest_admin/src/constants/firestore_constants.dart';
 import 'package:beauty_contest_admin/src/features/authorize/domain/app_admin.dart';
 import 'package:beauty_contest_admin/src/firestore/firestore_instance_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,6 +6,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../domain/experiment.dart';
 
 part 'firestore_experiment_repository.g.dart';
+
+const String experimentsCollectionName = 'experiments';
 
 class FirestoreExperimentRepository {
   FirestoreExperimentRepository(this._firestore);
@@ -26,6 +27,7 @@ class FirestoreExperimentRepository {
 
   /// create query for all experiments of a specific admin
   Query<Experiment?> getExperimentQuery(AppAdmin? admin) {
+    print('getting query');
     final experimentCollectionRef = _firestore.collection(experimentsCollectionName);
     return experimentCollectionRef
         .where('adminUid', isEqualTo: admin?.uid ?? 'no admin')
@@ -39,7 +41,16 @@ class FirestoreExperimentRepository {
   }
 
   /// starting a specific experiment
-  void startExperiment({required Experiment experiment}) {}
+  Future<void> startExperiment({required Experiment experiment}) async {
+    final experimentDocRef = _firestore.collection(experimentsCollectionName).doc(experiment.docId);
+    await experimentDocRef.update({"status": ExperimentStatus.inProgress.name});
+  }
+
+  /// closing a specific experiment
+  Future<void> closeExperiment({required Experiment experiment}) async {
+    final experimentDocRef = _firestore.collection(experimentsCollectionName).doc(experiment.docId);
+    await experimentDocRef.update({"status": ExperimentStatus.completed.name});
+  }
 }
 
 @riverpod

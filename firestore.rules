@@ -28,18 +28,17 @@ service cloud.firestore {
     }
 
     match /experiments/{experimentDocId} {
-        // allow admin to create a new experiment either if they are registered (unlimited) or if they have a free experiment left
-        allow create: if registeredAdmin() || guestWithFreeExperiments();
-        // allow admin to read, update or delete only the experiment they created
-        allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.adminUid;
+      // allow admin to create a new experiment either if they are registered (unlimited) or if they have a free experiment left
+      allow create: if registeredAdmin() || guestWithFreeExperiments();
+      // allow only an admin to update or delete an experiment that they created themselves
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.adminUid;
+      // allow all signed in users and admins to read experiments
+      allow read: if request.auth != null;
+
+      // 
+      match /users/{userId} {
+        allow read, write: if true; //request.auth != null && resource.parent.data.adminUid == request.auth.uid; //get(/databases/$(database)/documents/experiments/$(experimentDocId)).data.adminUid == request.auth.uid;
       }
-
-
-    
-
-
-    // match /{document=**} {
-    //   allow read, write: if request.time < timestamp.date(2024, 6, 23);
-    // }
+    }
   }
 }

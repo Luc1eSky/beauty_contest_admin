@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../../constants/firestore_constants.dart';
 import '../../../firestore/firestore_instance_provider.dart';
 import '../../authorize/domain/app_admin.dart';
 import '../domain/firestore_admin_data.dart';
 
 part 'firestore_admin_repository.g.dart';
+
+const String adminCollectionName = 'admins';
 
 class FirestoreAdminRepository {
   FirestoreAdminRepository(this._firestore);
